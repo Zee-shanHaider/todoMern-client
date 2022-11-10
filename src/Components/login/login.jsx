@@ -74,9 +74,8 @@ const submitHandler =async (e)=>{
               dispatch(userLoginSuccess(user, token))
             }
             catch(error) {
-              console.log(error)
               // console.log('error',error.response.data.message)
-              // setError(error.response.data.message)
+              setError(error.response.data.message)
             }
   }  
 }
