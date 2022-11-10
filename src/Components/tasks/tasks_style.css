@@ -1,0 +1,151 @@
+.todoForm{
+    
+    display: flex;
+    flex-direction: column;
+}
+.todoForm > input{
+    
+    margin: 5px auto;
+    width: 95%;
+    padding: 5px 5px;
+    outline: none;
+    border-radius: 4px;
+    border: 1px solid silver;
+}
+.date{
+   margin: 5px auto;
+    width: 95%;
+    padding: 5px 5px;
+    outline: none;
+    border-radius: 4px;
+    border: 1px solid silver;
+}
+input::placeholder{
+   
+    color: rgb(216, 211, 211);
+}
+.form{
+    border: 1px solid silver;
+    width: 80%;
+    margin: 30px auto;
+    padding: 10px 5px;
+}
+
+.btnTodo{
+    border: 1px solid rgb(52, 189, 204);
+    color: white;
+    background-color:  rgb(52, 189, 204);
+    padding: 2px 5px;
+    margin: 5px auto;
+    width: 95%;
+    border-radius: 2px;
+
+}
+.txt-center{
+    text-align: center;
+}
+.todoContainer{
+    width: 80%;
+    margin: 0px auto;
+}
+.todoBtns{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.todoBtns > button{
+    width: 30%;
+    margin: 0px;
+}
+.tasks{
+    width: 80%;
+    margin: 3px auto;
+}
+.task{
+    border: 1px solid silver;
+    margin: 15px auto;
+    padding: 8px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+ }
+ .fa{
+    color:  rgb(52, 189, 204);
+    font-size: 1.1rem;
+
+ }
+
+ .btn{
+    padding: 0x 2px;
+ }
+ .fa-pencil{
+    color: #9292ce;
+ }
+ .fa-pencil:hover{
+    color: #4545c9;
+ }
+ .fa-trash{
+    color: rgb(192, 16, 16);
+    margin-left: -11px;
+ }
+ .fa-trash:hover{
+    color: rgb(255, 4, 4);
+
+ }
+ .endBtn{
+    background-color: rgb(194, 46, 46);
+    width: 40%;
+ }
+ .Container{
+    display: flex;
+ }
+ .sideBar{
+   
+    width: 20%;
+    background-color: rgb(244, 231, 231);
+    padding: 40px 10px;
+    overflow: auto;
+ }
+ .tasksContainer{
+    width: 90%;
+    text-align: center;
+    background-color: rgb(241, 242, 227);
+ }
+ .sideBarBtns{
+    display: block;
+    color: black;
+    padding: 10px 20px;
+    text-decoration: none;
+    background: none;
+    border: none;
+ }
+ .sideBar button.active {
+    background-color: #e4e2e2;
+  }
+  .sideBar button:hover:not(.active) {
+    color: #04AA6D;
+  }
+
+  @media screen and (max-width: 700px) {
+    .sideBar {
+      width: 100%;
+      height: auto;
+      position: relative;
+    }
+    .sideBar button {float: left;}
+    div.tasksContainer {margin-left: 0;}
+  }
+  
+  @media screen and (max-width: 400px) {
+    .sideBar button {
+      text-align: center;
+      float: none;
+    }
+  }
+  .addTask{
+     text-align: left;
+     width: 80%;
+     margin: 10px auto;
+     cursor: pointer;
+
+   }
