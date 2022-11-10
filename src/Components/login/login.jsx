@@ -99,10 +99,10 @@ const submitHandler =async (e)=>{
                     {error? (<p style={{'color': 'red'}}> {error.msg} </p>):null}                
                 {formErrors?.password? (<p className='error-para' style={{'color': 'red'}}> {formErrors?.password} </p> ): null}
                 </div>  
-                {error? (<p className='e error-para'>{error}</p>):null}
               <button variant="primary" type='submit' className='btn'>
                 Sign in
               </button>  
+                {error? (<p className='e error-para'>{error}</p>):null}
           </form>
     </>
   )

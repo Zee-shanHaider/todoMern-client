@@ -65,7 +65,6 @@ const Tasks = () => {
     
     axios(config)
     .then(function (response) {
-      console.log(JSON.stringify(response.data));
       GetAllTasks()
     })
     .catch(function (error) {
@@ -78,9 +77,7 @@ const Tasks = () => {
   const changeHandler = (e)=>{
     const {name, value} = e.target;
     setFormValues({...Initial_Values, [name]: value})
-  }
-  console.log('selected date',selectedDate )
-  
+  }  
 // Submit handler Function
   const submitHandler =(e, )=>{
     e.preventDefault();
@@ -256,9 +253,9 @@ const getAllTasks = ()=>{
   setTasks(tasksData)
 }
 const getTodayTasks = ()=>{
-  console.log(moment().format())
-  console.log(moment().add(1, 'days').calendar())
- 
+  const todayDate = moment().format("MM-DD-YYYY");
+  const filteredArr = tasksData.filter(task=> task.todoDate === todayDate)
+  setTasks(filteredArr)
 }
 useEffect(()=>{  
   GetAllTasks()
@@ -276,7 +273,7 @@ useEffect(()=>{
           <button className='sideBarBtns' href="#home"> <i className="fa fa-inbox"></i>   Home</button>
           <button className='sideBarBtns' href="#news" onClick={()=>getTodayTasks()}><i className="fa fa-calendar-o"></i>   Today</button>
           <button className='sideBarBtns' href="#contact" onClick={()=>getTodoTasks()}><i className="fa fa-calendar" aria-hidden="true"></i>   Upcoming</button>
-          <button className='sideBarBtns' onClick={()=>getAllTasks()} href="#contact"><i className="fa fa-circle"></i>   All</button>
+          <button className='sideBarBtns' onClick={()=>getAllTasks()}> <i className="fa fa-circle"></i>   All</button>
           <button className='sideBarBtns' href="#about" onClick={()=>getDoneTasks()}><i className="fa fa-check"></i>   Done</button>
         </div>
 
