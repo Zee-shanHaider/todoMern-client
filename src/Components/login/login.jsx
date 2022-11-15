@@ -1,7 +1,7 @@
 import React from 'react'
 import axios from 'axios'
-import { passwordError, emailError,userLoginSuccess, userLoginFailed} from '../../store/User/userActions';
-import { userValidationErrorSelector } from '../../store/User/userSelectors';
+import { passwordError, emailError, userLoginFailed, userLogin} from '../../store/User/userActions';
+import { userValidationErrorSelector,userSelector,userLoginErrorSelector } from '../../store/User/userSelectors';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState } from 'react';
 import { Outlet , Link, useNavigate} from 'react-router-dom';
@@ -10,17 +10,17 @@ import { url } from '../../configUrls';
 
 export const Login = () => {
     const dispatch = useDispatch();
+    const loginError = useSelector(userLoginErrorSelector)
+    const user = useSelector(userSelector)
   const formErrors = useSelector(userValidationErrorSelector)
   const Initial_formValues = {
         email: '',
         password:'',
     }
   const [formValues, setFormValues] = useState(Initial_formValues);
-  const [error, setError] = useState('')
   const handleChange = (e)=>{
     const {name, value} = e.target;
     setFormValues({...formValues, [name]: value})
-    setError('')
     switch(name){
       case 'email':
              if(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value)){ 
@@ -47,36 +47,13 @@ export const Login = () => {
     }
 }
 
-const submitHandler =async (e)=>{
+const submitHandler =(e)=>{
     e.preventDefault();
           if(Object.keys(formErrors).length === 0){
-            try{
-  
-              var data = JSON.stringify(formValues);
-              var config = {
-              method: 'POST',
-              withCredentials: false,
-
-              url: url+'/api/login',
-              headers: { 
-                  'Content-Type': 'application/json',
-                  'Access-Control-Allow-Origin': '*',
-              },
-              data : data
-              };
-              const response = await  axios(config)
-              if(response.data?.status){
-                setFormValues(Initial_formValues)
-              }
-              const token =  response.data.token;
-              localStorage.setItem("token" , token)
-              const user = {...response.data.user, imageUrl: response.data.userImage}
-              dispatch(userLoginSuccess(user, token))
-            }
-            catch(error) {
-              // console.log('error',error.response.data.message)
-              setError(error.response.data.message)
-            }
+           dispatch(userLogin(formValues))
+           if(user){
+            setFormValues(Initial_formValues)
+           }
   }  
 }
 
@@ -96,13 +73,13 @@ const submitHandler =async (e)=>{
                 <div className="mb-3">
                     <label htlmfor="exampleInputPassword1" className="form-label">Password</label>
                     <input type="password" name='password' className="form-control" id="exampleInputPassword1" onChange={handleChange} value={formValues.password}/>
-                    {error? (<p style={{'color': 'red'}}> {error.msg} </p>):null}                
+                    {loginError? (<p style={{'color': 'red'}}> {loginError.msg} </p>):null}                
                 {formErrors?.password? (<p className='error-para' style={{'color': 'red'}}> {formErrors?.password} </p> ): null}
                 </div>  
               <button variant="primary" type='submit' className='btn'>
                 Sign in
               </button>  
-                {error? (<p className='e error-para'>{error}</p>):null}
+                {loginError? (<p className='e error-para'>{loginError}</p>):null}
           </form>
     </>
   )

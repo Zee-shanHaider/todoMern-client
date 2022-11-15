@@ -7,8 +7,8 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import axios from 'axios'
-import { passwordError, emailError,usernameError,Logout } from '../../store/User/userActions';
-import { userValidationErrorSelector, userSelector } from '../../store/User/userSelectors';
+import { passwordError, emailError,Logout,userSignup,userSignupFailed } from '../../store/User/userActions';
+import { userValidationErrorSelector, userSelector,userSignupErrorSelector, userSignupSuccessSelector} from '../../store/User/userSelectors';
 import { useDispatch, useSelector } from 'react-redux';
 import { url } from '../../configUrls';
 
@@ -16,7 +16,9 @@ const  Navbar=(props)=> {
   
   const dispatch = useDispatch();
   const user = useSelector(state=> state.user.user);
+  const signupError = useSelector(userSignupErrorSelector)
   const formErrors = useSelector(userValidationErrorSelector)
+  const signupRes = useSelector(userSignupSuccessSelector)
   const navigate = useNavigate()
   const isLoggedIn = useSelector(state=> state?.user.isLoggedIn)
   const [image, setImage] = useState(null);
@@ -65,41 +67,20 @@ const handleChange = (e)=>{
     }
 }
 
-const submitHandler =async (e)=>{
-  e.preventDefault();
+const submitHandler =(e)=>{
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('username', formValues.username)
+    formData.append('email', formValues.email)
+    formData.append('image', image)
+    formData.append('password', formValues.password)
         if(Object.keys(formErrors).length === 0){
-          try{
-            const formData = new FormData();
-            formData.append('username', formValues.username)
-            formData.append('email', formValues.email)
-            formData.append('image', image)
-            formData.append('password', formValues.password)
-            var config = {
-            method: 'POST',
-            url: url+'/api/signup',
-            headers: { 
-            },
-            data : formData,
-          };
-            const response = await  axios(config)
-            console.log(response.data?.status)
-            if(response.data?.status){
-              setShow(false)
-              setFormValues(Initial_formValues)
-              {<Navigate to="/login" replace={true} />}
-            }
-         
-            console.log(JSON.stringify(response?.data));
-          }
-          catch(error) {
-            console.log(error)
-            // console.log('error',error?.response?.data?.msg[0]?.msg)
-            // setError(error?.response?.data?.msg[0]?.msg)
-          }
+        dispatch(userSignup(formData))
+        dispatch(userSignupFailed(''))
+        setShow(false)
+        setFormValues(Initial_formValues)
+        {<Navigate to="/login" replace={true} />}
 }
-
-  //------------------
-  
 }
   const signOut = ()=>{
   dispatch(Logout())
@@ -175,7 +156,7 @@ const submitHandler =async (e)=>{
                 <div className="mb-3">
                     <label htlmfor="exampleInputPassword1" className="form-label">Password</label>
                     <input type="password" name='password' className="form-control" id="exampleInputPassword1" onChange={handleChange} value={formValues.password}/>
-                    {error? (<p style={{'color': 'red'}}> {error.msg} </p>):null}                
+                    {signupError? (<p style={{'color': 'red'}}> {signupError} </p>):null}                
                 {formErrors?.password? (<p className='error-para' style={{'color': 'red'}}> {formErrors?.password} </p> ): null}
                 </div>  
               <Button variant="primary" type='submit'>

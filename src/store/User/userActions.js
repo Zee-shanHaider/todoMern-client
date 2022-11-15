@@ -2,18 +2,19 @@ import userTypes from './userTypes'
 import axios from 'axios'
 import { Navigate } from 'react-router-dom';
 import jwt_decode from 'jwt-decode'
+import { url } from '../../configUrls';
 
 const { User_Signup_Success,  User_Signup_Failed,User_Login_Failed,User_Login_Success} = userTypes;
 
-export const userSignupSuccess = (user)=>{
+export const userSignupSuccess = (response)=>{
         return {
             type: User_Signup_Success,
-            payload: user
+            payload: response
         }
     }
 export const userSignupFailed = (error)=>{
         return {
-            type: User_Signup_Success,
+            type: User_Signup_Failed,
             payload: error,
         }
 }
@@ -25,7 +26,7 @@ export const userLoginSuccess = (user,token)=>{
 }
 export const userLoginFailed = (error)=>{
         return {
-            type: User_Signup_Success,
+            type: User_Login_Failed,
             payload: error
         }
 }
@@ -71,22 +72,45 @@ export const isUserLoggedIn =()=>{
             payload: {}
         })
     }
-//     try{
-//         if(token){
-//         const res = await  axios.get('http://localhost:8080/api',{
-//                            headers: { 
-//                                      'Content-Type': 'application/json',
-//                                          'Authorization': token
-//                                    }})
-             
-//                    if(res.data ){
-//                     dispatch( {
-//                         type: 'alreadyLoggedIn',
-//                         payload: token
-//                     })
-//                    }
-//                 }
-//     } catch(err){
-//     return dispatch(Logout())
-// }
+}
+
+export const userLogin =(params)=>async (dispatch)=>{
+    try{
+  
+        var data = JSON.stringify(params);
+        var config = {
+        method: 'POST',
+        withCredentials: false,
+        url: url+'/api/login',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+        },
+        data : data
+        };
+        const response = await  axios(config)
+        const token =  response.data.token;
+        localStorage.setItem("token" , token)
+        const user = {...response.data.user, imageUrl: response.data.userImage}
+        dispatch(userLoginSuccess(user, token))
+      }
+      catch(error) {
+        dispatch(userLoginFailed(error?.response?.data?.message))
+      }
+}
+
+export const userSignup = params =>async (dispatch)=>{
+    try{
+        
+        var config = {
+        method: 'POST',
+        url: url+'/api/signup',
+        data : params,
+      };
+        const response = await  axios(config)
+        dispatch(userSignupSuccess(response))
+      }
+      catch(error) {
+        dispatch(userSignupFailed(error?.response?.data?.msg[0]?.msg))
+      }
 }

@@ -20,3 +20,16 @@ export const userValidationErrorSelector = createSelector([selectUserReducer],
     (userReducer)=>{
         return userReducer.validationError
     })
+export const userLoginErrorSelector = createSelector([selectUserReducer],
+    (userReducer)=>{
+        return userReducer.loginError;
+    })
+export const userSignupErrorSelector = createSelector([selectUserReducer],
+    (userReducer)=>{
+        return userReducer.signupError;
+    })
+export const userSignupSuccessSelector = createSelector([selectUserReducer],
+    (userReducer)=>{
+        return userReducer.signupSuccess;
+    })
+

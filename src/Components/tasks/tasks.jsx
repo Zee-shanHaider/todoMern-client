@@ -11,12 +11,23 @@ import moment from 'moment'
 import { url } from '../../configUrls'
 //Own imports
 import Navbar from '../navbar/navigation.component'
-import { fetchTasksFailed, fetchTasksSuccess} from '../../store/Task/taskActions'
+import { fetchTasksFailed,
+        fetchTasksSuccess,
+        fetchTasksAsync,
+        deleteDoneTasksAsync,deleteAllTasksAsync,deleteTaskAsync,
+         taskStatusPending,taskStatusDone,
+         createNewTaskAsync,updateTaskAsync,
+         getPendingTasksAsync,getDoneTasksAsync,
+         getTodayTasksAsync} from '../../store/Task/taskActions'
+
 const Tasks = () => {
   const dispatch = useDispatch()
-  const tasksData = useSelector(tasksSelector)
+  const tasksData = useSelector(state=>state.task.tasks)
+  
+  console.log('clone array global', tasksData)
   const [selectedDate, setSelectedDate] = useState(null)
   const [tasks, setTasks] = useState(tasksData)
+  const [ren, setRen] = useState('')
   const [showForm, setShowForm] = useState(false)
   const Initial_Values = {
     title: '',
@@ -29,238 +40,111 @@ const Tasks = () => {
 
   const checkBoxHandler = (task)=>{
         if(task.status !== "done"){
-          var data = JSON.stringify({...task, status: 'done'});
-    
-    var config = {
-      method: 'put',
-      url: url+'/api/updateTask/'+task._id,
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: token,
-      },
-      data : data
-    };
-    
-    axios(config)
-    .then(function (response) {
-      console.log(JSON.stringify(response.data));
-      GetAllTasks()
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+         dispatch(taskStatusDone(task,token))
         }
         else{
-        data = JSON.stringify({...task, status: 'pending'});
-    
-      config = {
-      method: 'put',
-      url: url+'api/updateTask/'+task._id,
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: token,
-      },
-      data : data
-    };
-    
-    axios(config)
-    .then(function (response) {
-      GetAllTasks()
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-        }
+       dispatch(taskStatusPending(task,token))
         
   }
+}
   // Change Handler Function
   const changeHandler = (e)=>{
     const {name, value} = e.target;
     setFormValues({...Initial_Values, [name]: value})
   }  
-// Submit handler Function
+
+// Creating and Updating task Function
   const submitHandler =(e, )=>{
     e.preventDefault();
     const formData = {...formValues, date: selectedDate}
+    //to update task
     if(isEditing){
-      var data = JSON.stringify(formData);
-    
-    var config = {
-      method: 'put',
-      url: url+'/api/updateTask/'+updateTask._id,
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: token,
-      },
-      data : data
-    };
-    
-    axios(config)
-    .then(function (response) {
+      dispatch(updateTaskAsync(updateTask,token,formData))
+      setTasks(tasksData)
       setisEditing(false);
       setFormValues(Initial_Values)
-      GetAllTasks()
       setSelectedDate(null)
       setShowForm(false)
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
     }
-
     // to add new task
     else{
-        data = JSON.stringify(formData);
-        config = {
-        method: 'post',
-        url: url+'/api/task',
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-        data : data
-      };
-  
-      axios(config)
-      .then(function (response) {
-        // console.log(JSON.stringify(response.data));
-        // const updatedArr = [...tasks, response.data.task];
-        // dispatch(fetchTasksSuccess(updatedArr))
+        dispatch(createNewTaskAsync(formData,token))
         setShowForm(false)
         setFormValues(Initial_Values)
-        GetAllTasks()
         setSelectedDate(null)
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+        fetchTasksAsync(token)
+        fetchTasksSuccess(tasksData)
+        setTasks(tasksData)
+        setRen('ren')
     }
-
   }
+
+  
+  // delete All tasks
+  const deleteAll = ()=>{
+    if(tasksData.length <=0){
+      return alert('There are no tasks to delete')
+    }
+    alert('Are you want to delete all tasks?')
+    dispatch(deleteAllTasksAsync(token))
+  }
+  
+  //update a Task
+  const updateTaskHandler = (task)=>{
+    setisEditing(true);
+    setShowForm(true)
+    setFormValues({...Initial_Values, title: task.title})
+    setUpdateTask(task)
+  }
+  
+  // Function to get all data after calling each api
+  const GetAllTasks=()=>{
+    dispatch(fetchTasksAsync(token))
+  }
+
 
   //delete One Task
 const deleteTask = (taskId)=>{
   alert('Are you sure to delete this task?')
-    var config = {
-      method: 'delete',
-      url: url+'/api/deleteTask/'+taskId,
-      headers: {
-        Authorization: token
-       }
-    };
-    
-    axios(config)
-    .then(function (response) {
-      const updatedArr = [...tasks];
-      const filteredArr = updatedArr.filter((item)=>{
-        return item._id !== taskId
-      })
+  setRen('ren')
+  dispatch(deleteTaskAsync(taskId,token))
+  setRen('render')
 
-      dispatch(fetchTasksSuccess(filteredArr))
-      setTasks(filteredArr)
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-    
+  // setTasks(tasksData)
+  // console.log('set', tasks)
   }
-
-  // delete All tasks
-  const deleteAll = ()=>{
-    if(tasks.length <=0){
-      return alert('There are no tasks to delete')
-    }
-    alert('Are you want to delete all tasks?')
-    var config = {
-      method: 'delete',
-      url: url+'/api/deleteAllTasks',
-      headers: { 
-        Authorization: token
-      }
-    };
-    
-    axios(config)
-    .then(function (response) {
-      console.log(JSON.stringify(response.data));
-      GetAllTasks()
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-  }
-
-  //update a Task
-  const updateTaskHandler = (task)=>{
-    setisEditing(true);
-    setFormValues({...Initial_Values, title: task.title})
-    setUpdateTask(task)
-  }
-
-  // Function that I'm used to get all data after calling each api
-const GetAllTasks=()=>{
-  var config = {
-    method: 'get',
-    url: url+'/api/tasks',
-    headers: { 
-      'Content-Type': 'application/json',
-       Authorization: token
-    }
-  };
-  
-    axios(config)
-    .then(response=>{
-      dispatch(fetchTasksSuccess(response.data.tasks))
-      setTasks(response.data.tasks)
-
-}) 
-.catch(error=> {
-  console.log(error);
-})
-}
 
 const deleteDoneTasks = ()=>{
-  var data = '';
-
-var config = {
-  method: 'delete',
-  url: url+'/api/deleteDoneTasks',
-  headers: { 
-    Authorization: token
-  },
-  data : data
-};
-
-axios(config)
-.then(function (response) {
-  console.log(JSON.stringify(response.data));
-  GetAllTasks()
-})
-.catch(function (error) {
-  console.log(error);
-});
-
+  dispatch(deleteDoneTasksAsync(token))
 }
 
 const getDoneTasks = ()=>{
-  const filteredArr = tasksData.filter(task => task.status === 'done');
-  setTasks(filteredArr)
+  dispatch(getDoneTasksAsync(token))
+  // const filteredArr = tasksData.filter(task => task.status === 'done');
+  // cloneArr = [...filteredArr]
+  // console.log('clone array',cloneArr)
+  // setTasks(filteredArr)
 }
+
 const getTodoTasks = ()=>{
-  const filteredArr = tasksData.filter(task => task.status === 'pending');
-  setTasks(filteredArr)
+  dispatch(getPendingTasksAsync(token))
+  // const filteredArr = tasksData.filter(task => task.status === 'pending');
+  // // cloneArr = filteredArr;
+  // setTasks(filteredArr)
+ 
 }
 const getAllTasks = ()=>{
-  setTasks(tasksData)
+  dispatch(fetchTasksAsync(token))
 }
 const getTodayTasks = ()=>{
-  const todayDate = moment().format("MM-DD-YYYY");
-  const filteredArr = tasksData.filter(task=> task.todoDate === todayDate)
-  setTasks(filteredArr)
+  dispatch(getTodayTasksAsync(token))
+  // const todayDate = moment().format("MM-DD-YYYY");
+  // const filteredArr = tasksData.filter(task=>moment(task.todoDate).format("MM-DD-YYYY")   === todayDate)
+  // setTasks(filteredArr)
 }
 useEffect(()=>{  
   GetAllTasks()
   },[])
-
 
 
   return (
@@ -297,11 +181,9 @@ useEffect(()=>{
           setSelectedDate(date)
          }} 
         />
-        {/* <input type="date" onChange={(date)=>setSelectedDate(date)} value={moment().format("DD-MMM-YYYY")}/> */}
             <button className='btnTodo' type='submit'>{isEditing ? "Update task":  "Add new Task"}</button>
         </form>
     </div>):null}
-        
         <div className='todoContainer'>
         <h2 className='txt-center'>
             TodoList
@@ -314,7 +196,7 @@ useEffect(()=>{
         </div>
         <div className='tasks'>
           {
-            tasks.map((task,ind)=>{
+            tasksData.map((task,ind)=>{
               return(<div className='task' key={ind}>
               <b>{task.title}</b>
               <div >
@@ -340,5 +222,6 @@ useEffect(()=>{
     </>
   )
 }
+
 
 export default Tasks

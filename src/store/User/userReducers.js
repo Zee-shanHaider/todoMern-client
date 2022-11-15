@@ -3,6 +3,7 @@ const { User_Signup_Success,  User_Signup_Failed,User_Login_Failed,User_Login_Su
 const Initial_State = {
     user: null,
     token: null,
+    signupSuccess: null,
     isLoggedIn: false,
     signupError: '',
     loginError: '',
@@ -14,7 +15,7 @@ export const userReducer = (state= Initial_State, action)=>{
         case User_Signup_Success:
             return{
                 ...state,
-                user: payload
+                signupSuccess: payload
             }
             case User_Signup_Failed:
                 return{
